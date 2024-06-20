@@ -1,0 +1,104 @@
+from google.colab import drive
+
+# Mount Google Drive
+drive.mount('/content/drive')
+
+import os
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.optimizers import Adam
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+# Check if GPU is available and set it as the runtime
+if tf.test.gpu_device_name():
+    print('Default GPU Device: {}'.format(tf.test.gpu_device_name()))
+else:
+    print("No GPU available. Switch to a GPU runtime in Google Colab.")
+
+# Define the directories for your dataset
+train_dir = '/content/drive/MyDrive/core project1'  # Replace with the path to your training dataset
+test_dir = '/content/drive/MyDrive/core project1'    # Replace with the path to your test dataset
+
+# Set parameters for data augmentation and preprocessing
+train_data_gen = ImageDataGenerator(
+    rescale=1./255,
+    rotation_range=20,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True,
+    fill_mode='nearest'
+)
+test_data_gen = ImageDataGenerator(rescale=1./255)
+
+# Create generators for loading and augmenting images
+batch_size = 32
+train_generator = train_data_gen.flow_from_directory(train_dir, target_size=(224, 224), batch_size=batch_size, class_mode='categorical')
+test_generator = test_data_gen.flow_from_directory(test_dir, target_size=(224, 224), batch_size=batch_size, class_mode='categorical')
+
+model = Sequential()
+
+# Convolutional layers
+model.add(Conv2D(96, kernel_size=(11, 11), strides=(4, 4), activation='relu', input_shape=(224, 224, 3)))
+model.add(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))
+model.add(Conv2D(256, kernel_size=(5, 5), activation='relu'))
+model.add(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))
+model.add(Conv2D(384, kernel_size=(3, 3), activation='relu'))
+model.add(Conv2D(384, kernel_size=(3, 3), activation='relu'))
+model.add(Conv2D(256, kernel_size=(3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))
+
+# Fully connected layers
+model.add(Flatten())
+model.add(Dense(4096, activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(4096, activation='relu'))
+model.add(Dropout(0.5))
+model.add(Dense(2, activation='softmax'))  # Assuming two classes (healthy skin and vitiligo)
+
+model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=0.0001), metrics=['accuracy'])
+
+Epoch 1/20
+18/18 [==============================] - 89s 5s/step - loss: 0.6918 - accuracy: 0.5293 - val_loss: 0.6915 - val_accuracy: 0.5312
+Epoch 2/20
+18/18 [==============================] - 86s 5s/step - loss: 0.6912 - accuracy: 0.5329 - val_loss: 0.6898 - val_accuracy: 0.5434
+Epoch 3/20
+18/18 [==============================] - 103s 6s/step - loss: 0.6906 - accuracy: 0.5471 - val_loss: 0.6906 - val_accuracy: 0.5365
+Epoch 4/20
+18/18 [==============================] - 88s 5s/step - loss: 0.6915 - accuracy: 0.5311 - val_loss: 0.6906 - val_accuracy: 0.5365
+Epoch 5/20
+18/18 [==============================] - 85s 5s/step - loss: 0.6900 - accuracy: 0.5434 - val_loss: 0.6910 - val_accuracy: 0.5330
+Epoch 6/20
+18/18 [==============================] - 83s 4s/step - loss: 0.6931 - accuracy: 0.5329 - val_loss: 0.6902 - val_accuracy: 0.5382
+Epoch 7/20
+18/18 [==============================] - 83s 5s/step - loss: 0.6920 - accuracy: 0.5311 - val_loss: 0.6907 - val_accuracy: 0.5382
+Epoch 8/20
+18/18 [==============================] - 83s 5s/step - loss: 0.6912 - accuracy: 0.5346 - val_loss: 0.6905 - val_accuracy: 0.5365
+Epoch 9/20
+18/18 [==============================] - 83s 5s/step - loss: 0.6924 - accuracy: 0.5275 - val_loss: 0.6912 - val_accuracy: 0.5312
+Epoch 10/20
+18/18 [==============================] - 83s 5s/step - loss: 0.6907 - accuracy: 0.5364 - val_loss: 0.6912 - val_accuracy: 0.5312
+Epoch 11/20
+18/18 [==============================] - 102s 6s/step - loss: 0.6909 - accuracy: 0.5329 - val_loss: 0.6910 - val_accuracy: 0.5330
+Epoch 12/20
+18/18 [==============================] - 84s 5s/step - loss: 0.6908 - accuracy: 0.5435 - val_loss: 0.6920 - val_accuracy: 0.5278
+Epoch 13/20
+18/18 [==============================] - 83s 5s/step - loss: 0.6902 - accuracy: 0.5346 - val_loss: 0.6918 - val_accuracy: 0.5278
+Epoch 14/20
+18/18 [==============================] - 84s 5s/step - loss: 0.6918 - accuracy: 0.5329 - val_loss: 0.6905 - val_accuracy: 0.5382
+Epoch 15/20
+18/18 [==============================] - 87s 5s/step - loss: 0.6894 - accuracy: 0.5346 - val_loss: 0.6902 - val_accuracy: 0.5382
+Epoch 16/20
+18/18 [==============================] - 84s 5s/step - loss: 0.6928 - accuracy: 0.5293 - val_loss: 0.6912 - val_accuracy: 0.5312
+Epoch 17/20
+18/18 [==============================] - 102s 6s/step - loss: 0.6913 - accuracy: 0.5293 - val_loss: 0.6904 - val_accuracy: 0.5382
+Epoch 18/20
+18/18 [==============================] - 84s 5s/step - loss: 0.6895 - accuracy: 0.5417 - val_loss: 0.6914 - val_accuracy: 0.5312
+Epoch 19/20
+18/18 [==============================] - 84s 5s/step - loss: 0.6885 - accuracy: 0.5453 - val_loss: 0.6916 - val_accuracy: 0.5330
+Epoch 20/20
+18/18 [==============================] - 82s 4s/step - loss: 0.6930 - accuracy: 0.5293 - val_loss: 0.6905 - val_accuracy: 0.5365
